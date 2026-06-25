@@ -3,405 +3,397 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Siri AI</title>
+<link rel="icon" type="image/png" href="ai-logo.png">
+<title>Siri AI v1.1.0</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;background:#000;color:#fff;height:100dvh;display:flex;flex-direction:column;overflow:hidden;-webkit-tap-highlight-color:transparent;user-select:none}
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-    background: #000;
-    color: #fff;
-    height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-  }
+  .top-bar{position:absolute;top:12px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:0 16px;z-index:10}
+  .icon-btn{width:36px;height:36px;background:rgba(255,255,255,0.12);border-radius:50%;border:none;color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 
-  .close-btn {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    width: 36px;
-    height: 36px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 50%;
-    border: none;
-    color: #fff;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 10;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-  }
+  /* CHATS LIST */
+  .chats-panel{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:#000;z-index:100;flex-direction:column}
+  .chats-panel.show{display:flex}
+  .chats-header{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px;border-bottom:0.5px solid rgba(255,255,255,0.1)}
+  .chats-header h3{font-size:17px;font-weight:600}
+  .chats-header .new-chat{background:none;border:none;color:#0a84ff;font-size:15px;cursor:pointer}
+  .chats-header .settings-link{background:none;border:none;color:#8e8e93;cursor:pointer;display:flex;align-items:center}
+  .chats-list{flex:1;overflow-y:auto;padding:8px 0}
+  .chat-item{padding:14px 16px;border-bottom:0.5px solid rgba(255,255,255,0.06);cursor:pointer;transition:background 0.15s;display:flex;gap:12px;align-items:center}
+  .chat-item:active{background:rgba(255,255,255,0.05)}
+  .chat-item-icon{width:40px;height:40px;background:rgba(255,255,255,0.08);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+  .chat-item-info{flex:1;min-width:0}
+  .chat-item-title{font-size:16px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .chat-item-preview{font-size:13px;color:#8e8e93;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .chat-item-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+  .chat-item-time{font-size:11px;color:#48484a}
+  .chat-item-del{background:none;border:none;color:#48484a;font-size:14px;cursor:pointer;padding:4px}
+  .chats-empty{padding:60px 20px;text-align:center;color:#48484a;font-size:15px;line-height:1.5}
 
-  .center-area {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+  /* SETTINGS */
+  .settings-panel{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:#000;z-index:100;flex-direction:column;overflow-y:auto}
+  .settings-panel.show{display:flex}
+  .settings-header{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px;border-bottom:0.5px solid rgba(255,255,255,0.1)}
+  .settings-header .back-btn{background:none;border:none;color:#0a84ff;font-size:16px;cursor:pointer;display:flex;align-items:center;gap:4px}
+  .settings-header h3{font-size:17px;font-weight:600}
+  .settings-content{flex:1;padding:20px 0}
+  .settings-card{background:rgba(255,255,255,0.06);border-radius:14px;margin:0 16px 20px;overflow:hidden}
+  .settings-card-header{padding:16px;text-align:center}
+  .settings-card-header img{width:60px;height:60px;border-radius:14px;margin-bottom:10px}
+  .settings-card-header h2{font-size:18px;font-weight:600;margin-bottom:4px}
+  .settings-card-header p{font-size:13px;color:#8e8e93;line-height:1.4}
+  .ios-section-title{font-size:13px;color:#8e8e93;text-transform:uppercase;letter-spacing:0.5px;padding:8px 16px 8px 32px}
+  .ios-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:0.5px solid rgba(255,255,255,0.06);cursor:pointer;transition:background 0.15s}
+  .ios-row:active{background:rgba(255,255,255,0.05)}
+  .ios-row:last-child{border-bottom:none}
+  .ios-row-left{display:flex;align-items:center;gap:12px}
+  .ios-row-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px}
+  .ios-row-label{font-size:16px}
+  .ios-row-value{display:flex;align-items:center;gap:6px;color:#8e8e93;font-size:15px}
+  .ios-row-value svg{width:14px;height:14px;color:#48484a}
+  .ios-toggle{position:relative;width:51px;height:31px;background:#39393d;border-radius:16px;border:none;cursor:pointer;transition:background 0.3s;flex-shrink:0}
+  .ios-toggle.on{background:#30d158}
+  .ios-toggle::after{content:'';position:absolute;top:2px;left:2px;width:27px;height:27px;background:#fff;border-radius:50%;transition:transform 0.3s}
+  .ios-toggle.on::after{transform:translateX(20px)}
 
-  .siri-orb {
-    width: 160px;
-    height: 160px;
-    position: relative;
-    animation: orbFloat 4s ease-in-out infinite;
-  }
-  @keyframes orbFloat {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-8px) scale(1.02); }
-  }
+  .lang-picker{display:none;position:absolute;bottom:0;left:0;right:0;background:rgba(28,28,30,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:0.5px solid rgba(255,255,255,0.1);border-radius:14px 14px 0 0;padding:8px;z-index:200;animation:su 0.3s ease}
+  .lang-picker.show{display:block}
+  @keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .lang-picker-title{text-align:center;font-size:13px;color:#8e8e93;padding:8px 0 12px}
+  .lang-option{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(255,255,255,0.06);border-radius:10px;margin-bottom:2px;cursor:pointer}
+  .lang-option span,.voice-option span{font-size:16px}
+  .lang-option .check,.voice-option .check{color:#30d158;font-size:18px;display:none}
+  .lang-option.active .check,.voice-option.active .check{display:block}
+  .voice-option{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(255,255,255,0.06);border-radius:10px;margin-bottom:2px;cursor:pointer}
+  .overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:150}
+  .overlay.show{display:block}
 
-  .siri-orb canvas {
-    width: 100%;
-    height: 100%;
-  }
+  .center-area{flex:1;display:flex;align-items:center;justify-content:center}
+  .siri-orb{width:160px;height:160px;animation:orbFloat 4s ease-in-out infinite}
+  @keyframes orbFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.02)}}
+  .siri-orb img{width:160px;height:160px;object-fit:contain}
+  .listening .siri-orb img{animation:orbPulse 1.5s ease-in-out infinite}
+  @keyframes orbPulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.08);filter:brightness(1.4)}}
 
-  .listening .siri-orb {
-    animation: orbPulse 1.5s ease-in-out infinite;
-  }
-  @keyframes orbPulse {
-    0%, 100% { transform: scale(1); filter: brightness(1); }
-    50% { transform: scale(1.08); filter: brightness(1.4); }
-  }
+  .chat-area{flex:1;overflow-y:auto;padding:60px 16px 10px;display:none;flex-direction:column;gap:10px}
+  .chat-area.show{display:flex}
+  .chat-msg{max-width:80%;padding:12px 16px;border-radius:18px;font-size:15px;line-height:1.4;animation:fi 0.3s ease;word-wrap:break-word;white-space:pre-wrap}
+  .chat-msg.user{align-self:flex-end;background:#0a84ff;color:#fff;border-bottom-right-radius:4px}
+  .chat-msg.bot{align-self:flex-start;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.9);border-bottom-left-radius:4px}
+  .chat-msg.bot code{background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px;font-family:'SF Mono',monospace;font-size:13px}
+  .chat-msg.bot pre{background:rgba(0,0,0,0.4);padding:12px;border-radius:8px;overflow-x:auto;margin:8px 0;position:relative}
+  .chat-msg.bot pre code{background:none;padding:0;font-size:13px;line-height:1.4}
+  .chat-msg.bot code.lang-python{color:#61dafb}
+  .chat-msg.bot code.lang-javascript{color:#f7df1e}
+  .chat-msg.bot code.lang-js{color:#f7df1e}
+  .chat-msg.bot code.lang-html{color:#e34c26}
+  .chat-msg.bot code.lang-css{color:#264de4}
+  .chat-msg.bot code.lang-bash{color:#4eaa25}
+  .chat-msg.bot strong{color:#fff}
+  .chat-msg.bot em{color:rgba(255,255,255,0.7)}
+  .chat-msg.bot a{color:#0a84ff;text-decoration:underline}
+  .chat-msg.bot h2,.chat-msg.bot h3,.chat-msg.bot h4{color:#fff;margin:8px 0 4px}
+  .chat-msg.bot h2{font-size:18px}
+  .chat-msg.bot h3{font-size:16px}
+  .chat-msg.bot h4{font-size:15px;font-weight:600}
+  .chat-msg.bot blockquote{border-left:3px solid #0a84ff;padding-left:10px;color:rgba(255,255,255,0.6);margin:6px 0;font-style:italic}
+  .chat-msg.bot hr{border:none;border-top:1px solid rgba(255,255,255,0.15);margin:8px 0}
+  .chat-msg.bot ul{padding-left:20px;margin:6px 0}
+  .chat-msg.bot li{margin:2px 0;line-height:1.4}
+  @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-  .bottom-bar {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 16px 34px;
-  }
+  .bottom-bar{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:0 16px 34px}
+  .btn-plus{width:44px;height:44px;background:rgba(255,255,255,0.12);border-radius:50%;border:none;color:#8e8e93;font-size:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background 0.2s}
+  .btn-plus:hover{background:rgba(255,255,255,0.2)}
+  .input-wrap{flex:1}
+  .input-wrap input{width:100%;height:44px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.12);border-radius:22px;padding:0 18px;color:#fff;font-size:16px;outline:none;transition:border-color 0.2s,background 0.2s}
+  .input-wrap input::placeholder{color:#8e8e93}
+  .input-wrap input:focus{border-color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.14)}
+  .btn-mic{width:44px;height:44px;background:rgba(255,255,255,0.12);border-radius:50%;border:none;color:#8e8e93;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background 0.2s,color 0.2s}
+  .btn-mic:hover{background:rgba(255,255,255,0.2)}
+  .btn-mic.active{background:rgba(48,209,88,0.25);color:#30d158;animation:mp 1s ease-in-out infinite}
+  @keyframes mp{0%,100%{box-shadow:0 0 0 0 rgba(48,209,88,0.4)}50%{box-shadow:0 0 0 8px rgba(48,209,88,0)}}
 
-  .btn-plus {
-    width: 44px;
-    height: 44px;
-    background: rgba(255,255,255,0.12);
-    border-radius: 50%;
-    border: none;
-    color: #8e8e93;
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: background 0.2s;
-  }
-  .btn-plus:hover { background: rgba(255,255,255,0.2); }
+  .voice-waves{display:none;gap:3px;align-items:center;justify-content:center;height:30px;margin-bottom:10px}
+  .listening .voice-waves{display:flex}
+  .voice-waves span{width:3px;height:6px;background:#30d158;border-radius:2px;animation:wv 0.6s ease-in-out infinite}
+  .voice-waves span:nth-child(1){animation-delay:0s}
+  .voice-waves span:nth-child(2){animation-delay:.1s}
+  .voice-waves span:nth-child(3){animation-delay:.2s}
+  .voice-waves span:nth-child(4){animation-delay:.3s}
+  .voice-waves span:nth-child(5){animation-delay:.4s}
+  @keyframes wv{0%,100%{height:6px}50%{height:22px}}
 
-  .input-wrap {
-    flex: 1;
-    position: relative;
-  }
-  .input-wrap input {
-    width: 100%;
-    height: 44px;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 22px;
-    padding: 0 18px;
-    color: #fff;
-    font-size: 16px;
-    outline: none;
-    transition: border-color 0.2s, background 0.2s;
-  }
-  .input-wrap input::placeholder {
-    color: #8e8e93;
-  }
-  .input-wrap input:focus {
-    border-color: rgba(255,255,255,0.3);
-    background: rgba(255,255,255,0.14);
-  }
-
-  .btn-mic {
-    width: 44px;
-    height: 44px;
-    background: rgba(255,255,255,0.12);
-    border-radius: 50%;
-    border: none;
-    color: #8e8e93;
-    font-size: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: background 0.2s, color 0.2s;
-  }
-  .btn-mic:hover { background: rgba(255,255,255,0.2); }
-  .btn-mic.active {
-    background: rgba(48,209,88,0.25);
-    color: #30d158;
-    animation: micPulse 1s ease-in-out infinite;
-  }
-  @keyframes micPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(48,209,88,0.4); }
-    50% { box-shadow: 0 0 0 8px rgba(48,209,88,0); }
-  }
-
-  .response-area {
-    padding: 0 20px;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.4s ease, padding 0.4s ease;
-  }
-  .response-area.show {
-    max-height: 300px;
-    padding: 10px 20px 20px;
-    overflow-y: auto;
-  }
-  .response-bubble {
-    background: rgba(255,255,255,0.08);
-    border-radius: 18px;
-    padding: 14px 18px;
-    font-size: 15px;
-    line-height: 1.5;
-    color: rgba(255,255,255,0.9);
-    animation: fadeIn 0.3s ease;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .voice-waves {
-    display: none;
-    gap: 3px;
-    align-items: center;
-    justify-content: center;
-    height: 30px;
-    margin-bottom: 10px;
-  }
-  .listening .voice-waves { display: flex; }
-  .voice-waves span {
-    width: 3px;
-    height: 6px;
-    background: #30d158;
-    border-radius: 2px;
-    animation: wave 0.6s ease-in-out infinite;
-  }
-  .voice-waves span:nth-child(1) { animation-delay: 0s; }
-  .voice-waves span:nth-child(2) { animation-delay: 0.1s; }
-  .voice-waves span:nth-child(3) { animation-delay: 0.2s; }
-  .voice-waves span:nth-child(4) { animation-delay: 0.3s; }
-  .voice-waves span:nth-child(5) { animation-delay: 0.4s; }
-  @keyframes wave {
-    0%, 100% { height: 6px; }
-    50% { height: 22px; }
-  }
+  .typing-indicator{display:none;align-self:flex-start;padding:12px 16px;background:rgba(255,255,255,0.1);border-radius:18px;border-bottom-left-radius:4px;gap:4px;animation:fi 0.3s ease}
+  .typing-indicator.show{display:flex}
+  .typing-indicator span{width:6px;height:6px;background:rgba(255,255,255,0.4);border-radius:50%;animation:td 1.4s ease-in-out infinite}
+  .typing-indicator span:nth-child(2){animation-delay:.2s}
+  .typing-indicator span:nth-child(3){animation-delay:.4s}
+  @keyframes td{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
 </style>
 </head>
 <body>
-  <button class="close-btn" id="closeBtn">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-      <path d="M1 1L13 13M13 1L1 13" stroke="white" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-  </button>
-
-  <div class="center-area" id="mainArea">
-    <div class="voice-waves" id="voiceWaves">
-      <span></span><span></span><span></span><span></span><span></span>
-    </div>
-    <div class="siri-orb" id="siriOrb">
-      <canvas id="orbCanvas" width="320" height="320"></canvas>
-    </div>
-  </div>
-
-  <div class="response-area" id="responseArea">
-    <div class="response-bubble" id="responseBubble"></div>
-  </div>
-
-  <div class="bottom-bar">
-    <button class="btn-plus" id="plusBtn">+</button>
-    <div class="input-wrap">
-      <input type="text" id="textInput" placeholder="Спросить Siri" autocomplete="off" />
-    </div>
-    <button class="btn-mic" id="micBtn">
-      <svg width="18" height="24" viewBox="0 0 18 24" fill="none">
-        <rect x="5" y="1" width="8" height="14" rx="4" stroke="currentColor" stroke-width="1.8"/>
-        <path d="M1 11C1 15.4 4.6 19 9 19C13.4 19 17 15.4 17 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        <line x1="9" y1="19" x2="9" y2="23" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-      </svg>
+  <div class="top-bar" id="topBar">
+    <button class="icon-btn" id="chatsBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
     </button>
+  </div>
+
+  <!-- CHATS -->
+  <div class="chats-panel" id="chatsPanel">
+    <div class="chats-header">
+      <button class="back-btn" id="chatsBack" style="background:none;border:none;color:#0a84ff;font-size:16px;cursor:pointer;display:flex;align-items:center;gap:4px">
+        <svg width="10" height="16" viewBox="0 0 10 16" fill="none" stroke="#0a84ff" stroke-width="2" stroke-linecap="round"><polyline points="8 2 2 8 8 14"/></svg>
+        <span id="chatsBackText">Назад</span>
+      </button>
+      <h3 id="chatsTitle">Чаты</h3>
+      <button class="new-chat" id="newChatBtn">+ Новый</button>
+    </div>
+    <div class="chats-list" id="chatsList"></div>
+    <div style="padding:12px 16px">
+      <button class="icon-btn" id="settingsFromChats" style="width:100%;border-radius:14px;height:44px;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,0.06)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <span id="settingsLabel">Настройки</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="settings-panel" id="settingsPanel">
+    <div class="settings-header">
+      <button class="back-btn" id="settingsBack"><svg width="10" height="16" viewBox="0 0 10 16" fill="none" stroke="#0a84ff" stroke-width="2" stroke-linecap="round"><polyline points="8 2 2 8 8 14"/></svg><span id="settingsBackText">Назад</span></button>
+      <h3>Apple Intelligence & Siri</h3>
+      <div style="width:60px"></div>
+    </div>
+    <div class="settings-content">
+      <div class="settings-card">
+        <div class="settings-card-header">
+          <img src="ai-logo.png" alt="Siri AI">
+          <h2>Siri AI</h2>
+          <p>Персональный AI-ассистент.</p>
+        </div>
+      </div>
+      <div class="ios-section-title">SIRI REQUESTS</div>
+      <div class="settings-card">
+        <div class="ios-row" id="langRow">
+          <div class="ios-row-left"><div class="ios-row-icon" style="background:#30d158"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div><span class="ios-row-label" id="labelLang">Язык</span></div>
+          <div class="ios-row-value"><span id="currentLang">Русский</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+        <div class="ios-row" id="voiceRow">
+          <div class="ios-row-left"><div class="ios-row-icon" style="background:#0a84ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg></div><span class="ios-row-label" id="labelVoice">Голос</span></div>
+          <div class="ios-row-value"><span id="currentVoice">Milena</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LANG PICKER -->
+  <div class="overlay" id="langOverlay"></div>
+  <div class="lang-picker" id="langPicker">
+    <div class="lang-picker-title" id="langPickerTitle">Язык Siri</div>
+    <div class="lang-option active" data-lang="ru"><span>Русский</span><span class="check">&#10003;</span></div>
+    <div class="lang-option" data-lang="uk"><span>Українська</span><span class="check">&#10003;</span></div>
+  </div>
+
+  <div class="overlay" id="voiceOverlay"></div>
+  <div class="lang-picker" id="voicePicker">
+    <div class="lang-picker-title" id="voicePickerTitle">Голос</div>
+    <div class="voice-option active" data-voice="Milena" data-lang="ru"><span>Milena (RU)</span><span class="check">&#10003;</span></div>
+    <div class="voice-option" data-voice="Maxim" data-lang="ru"><span>Maxim (RU)</span><span class="check">&#10003;</span></div>
+    <div class="voice-option" data-voice="Tetiana" data-lang="uk"><span>Tetiana (UA)</span><span class="check">&#10003;</span></div>
+    <div class="voice-option" data-voice="Dmytro" data-lang="uk"><span>Dmytro (UA)</span><span class="check">&#10003;</span></div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="center-area" id="mainArea">
+    <div class="voice-waves" id="voiceWaves"><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="siri-orb" id="siriOrb"><img src="ai-logo.png" alt="Siri AI"></div>
+  </div>
+  <div class="chat-area" id="chatArea"></div>
+  <div class="typing-indicator" id="typingIndicator"><span></span><span></span><span></span></div>
+  <div class="bottom-bar" id="bottomBar">
+    <button class="btn-plus" id="plusBtn">+</button>
+    <div class="input-wrap"><input type="text" id="textInput" placeholder="Спросить Siri" autocomplete="off"/></div>
+    <button class="btn-mic" id="micBtn"><svg width="18" height="24" viewBox="0 0 18 24" fill="none"><rect x="5" y="1" width="8" height="14" rx="4" stroke="currentColor" stroke-width="1.8"/><path d="M1 11C1 15.4 4.6 19 9 19C13.4 19 17 15.4 17 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="19" x2="9" y2="23" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
   </div>
 
 <script src="commands.js"></script>
 <script>
-const canvas = document.getElementById('orbCanvas');
-const ctx = canvas.getContext('2d');
-let w = 320, h = 320, cx = w/2, cy = h/2;
-let frame = 0;
-let isListening = false;
-let recognition = null;
-let isSpeaking = false;
+const API_KEY='AIzaSyDiCBTa9zXsf1E4NsiU2gizfUCmAqO9uyo';
+const API_URL='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent';
+const CORS_PROXY='https://corsproxy.io/?';
 
-function drawOrb() {
-  ctx.clearRect(0, 0, w, h);
-  frame += 0.015;
-  const baseR = 68;
-  const t = frame;
+const i18n={
+  ru:{placeholder:'Спросить Siri',back:'Назад',chats:'Чаты',newChat:'+ Новый',settings:'Настройки',empty:'Нет чатов. Нажмите + чтобы начать.',user:'Вы',bot:'Siri',lang:'Язык',voice:'Голос',langTitle:'Язык Siri',voiceTitle:'Голос',heard:'Я тебя не услышал.'},
+  en:{placeholder:'Ask Siri',back:'Back',chats:'Chats',newChat:'+ New',settings:'Settings',empty:'No chats. Tap + to start.',user:'You',bot:'Siri',lang:'Language',voice:'Voice',langTitle:'Siri Language',voiceTitle:'Voice',heard:"I didn't hear you."},
+  uk:{placeholder:'Запитати Siri',back:'Назад',chats:'Чати',newChat:'+ Новий',settings:'Налаштування',empty:'Немає чатів. Натисніть + щоб почати.',user:'Ви',bot:'Siri',lang:'Мова',voice:'Голос',langTitle:'Мова Siri',voiceTitle:'Голос',heard:'Я тебе не почув.'}
+};
 
-  for (let i = 0; i < 3; i++) {
-    const phase = t + i * 2.1;
-    const r = baseR + Math.sin(phase * 0.7) * 6;
-    const xOff = Math.sin(phase * 0.5) * 12;
-    const yOff = Math.cos(phase * 0.4) * 10;
-    ctx.beginPath();
-    ctx.ellipse(cx + xOff, cy + yOff, r, r * 0.85, Math.sin(phase * 0.3) * 0.3, 0, Math.PI * 2);
-    ctx.closePath();
-  }
+let lang=localStorage.getItem('siri_lang')||'ru';
+let selectedVoice=localStorage.getItem('siri_voice')||'Milena';
+let allChats=JSON.parse(localStorage.getItem('siri_chats')||'[]');
+let currentChatId=localStorage.getItem('siri_current_chat')||null;
+let isListening=false,recognition=null,isSpeaking=false;
 
-  ctx.globalCompositeOperation = 'source-over';
-  const grad = ctx.createRadialGradient(cx - 10, cy - 10, 0, cx, cy, 80);
-  grad.addColorStop(0, 'rgba(80, 80, 80, 0.5)');
-  grad.addColorStop(0.5, 'rgba(50, 50, 50, 0.4)');
-  grad.addColorStop(1, 'rgba(30, 30, 30, 0.1)');
+const $=id=>document.getElementById(id);
+const textInput=$('textInput'),micBtn=$('micBtn'),mainArea=$('mainArea'),chatArea=$('chatArea');
 
-  for (let i = 0; i < 3; i++) {
-    const phase = t + i * 2.1;
-    const r = baseR + Math.sin(phase * 0.7) * 6;
-    const xOff = Math.sin(phase * 0.5) * 12;
-    const yOff = Math.cos(phase * 0.4) * 10;
-    ctx.beginPath();
-    ctx.ellipse(cx + xOff, cy + yOff, r, r * 0.85, Math.sin(phase * 0.3) * 0.3, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.fillStyle = grad;
-    ctx.fill();
-  }
+function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 
-  ctx.beginPath();
-  ctx.arc(cx, cy, 75, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(80, 80, 80, 0.3)';
-  ctx.lineWidth = 2;
-  ctx.stroke();
+function getCurrentChat(){return allChats.find(c=>c.id===currentChatId)}
+function saveChats(){localStorage.setItem('siri_chats',JSON.stringify(allChats));if(currentChatId)localStorage.setItem('siri_current_chat',currentChatId)}
 
-  ctx.beginPath();
-  for (let x = -60; x <= 60; x += 1) {
-    const normalX = x / 60;
-    const mask = 1 - normalX * normalX;
-    const y = Math.sin(normalX * Math.PI * 2 + t * 3) * 8 * mask;
-    if (x === -60) ctx.moveTo(cx + x, cy + y);
-    else ctx.lineTo(cx + x, cy + y);
-  }
-  ctx.strokeStyle = 'rgba(100, 100, 100, 0.5)';
-  ctx.lineWidth = 2.5;
-  ctx.stroke();
-
-  const glow = ctx.createRadialGradient(cx, cy, 40, cx, cy, 85);
-  glow.addColorStop(0, 'rgba(255,255,255,0.03)');
-  glow.addColorStop(1, 'rgba(255,255,255,0)');
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, w, h);
-
-  requestAnimationFrame(drawOrb);
+function setLang(l){
+  lang=l;localStorage.setItem('siri_lang',l);const t=i18n[l];
+  textInput.placeholder=t.placeholder;
+  $('chatsBackText').textContent=t.back;$('chatsTitle').textContent=t.chats;$('newChatBtn').textContent=t.newChat;$('settingsLabel').textContent=t.settings;
+  $('settingsBackText').textContent=t.back;$('labelLang').textContent=t.lang;$('labelVoice').textContent=t.voice;
+  $('langPickerTitle').textContent=t.langTitle;$('voicePickerTitle').textContent=t.voiceTitle;
+  $('currentLang').textContent=l==='ru'?'Русский':l==='uk'?'Українська':'English';
+  document.querySelectorAll('.lang-option').forEach(o=>o.classList.toggle('active',o.dataset.lang===l));
 }
 
-drawOrb();
-
-const textInput = document.getElementById('textInput');
-const micBtn = document.getElementById('micBtn');
-const mainArea = document.getElementById('mainArea');
-const responseArea = document.getElementById('responseArea');
-const responseBubble = document.getElementById('responseBubble');
-
-function getReply(text) {
-  const lower = text.toLowerCase().trim();
-  for (const cmd of commands) {
-    for (const kw of cmd.keywords) {
-      if (lower.includes(kw)) {
-        return cmd.response;
-      }
-    }
-  }
-  return 'Хм, интересный вопрос. Попробуй переформулировать.';
+function setVoice(name){
+  selectedVoice=name;localStorage.setItem('siri_voice',name);
+  $('currentVoice').textContent=name;
+  document.querySelectorAll('.voice-option').forEach(o=>o.classList.toggle('active',o.dataset.voice===name));
 }
 
-function showResponse(text) {
-  responseBubble.textContent = text;
-  responseArea.classList.add('show');
+function renderMarkdown(text){
+  let h=text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  h=h.replace(/```(\w*)\n([\s\S]*?)```/g,(m,lang,code)=>{
+    const escaped=code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return '<pre><code class="lang-'+lang+'">'+escaped+'</code></pre>';
+  });
+  h=h.replace(/`([^`]+)`/g,'<code>$1</code>');
+  h=h.replace(/^### (.+)$/gm,'<h4>$1</h4>');
+  h=h.replace(/^## (.+)$/gm,'<h3>$1</h3>');
+  h=h.replace(/^# (.+)$/gm,'<h2>$1</h2>');
+  h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  h=h.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  h=h.replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>');
+  h=h.replace(/^---$/gm,'<hr>');
+  h=h.replace(/^- (.+)$/gm,'<li>$1</li>');
+  h=h.replace(/^(\d+)\. (.+)$/gm,'<li>$2</li>');
+  h=h.replace(/\[(.+?)\]\((.+?)\)/g,'<a href="$2" target="_blank">$1</a>');
+  h=h.replace(/(<li>[\s\S]*?<\/li>)/g,m=>'<ul>'+m+'</ul>');
+  h=h.replace(/<\/ul>\s*<ul>/g,'');
+  h=h.replace(/\n/g,'<br>');
+  return h;
 }
 
-function sendMessage() {
-  const text = textInput.value.trim();
-  if (!text) return;
-  textInput.value = '';
-  const reply = getReply(text);
-  mainArea.classList.add('listening');
-  setTimeout(() => {
-    showResponse(reply);
-    speak(reply);
-    setTimeout(() => mainArea.classList.remove('listening'), 2000);
-  }, 800);
+function renderChat(){
+  chatArea.innerHTML='';const chat=getCurrentChat();
+  if(!chat||!chat.messages.length)return;
+  chat.messages.forEach(msg=>{
+    const div=document.createElement('div');div.className='chat-msg '+(msg.role==='user'?'user':'bot');
+    div.innerHTML=msg.role==='bot'?renderMarkdown(msg.text):msg.text;chatArea.appendChild(div);
+  });
+  chatArea.scrollTop=chatArea.scrollHeight;
 }
 
-function speak(text) {
-  if (!('speechSynthesis' in window)) return;
-  isSpeaking = true;
-  const utt = new SpeechSynthesisUtterance(text);
-  utt.lang = 'ru-RU';
-  utt.rate = 1;
-  utt.onend = () => { isSpeaking = false; };
-  speechSynthesis.speak(utt);
+function renderChatsList(){
+  const list=$('chatsList'),t=i18n[lang];
+  if(!allChats.length){list.innerHTML='<div class="chats-empty">'+t.empty+'</div>';return}
+  list.innerHTML='';
+  allChats.slice().reverse().forEach(chat=>{
+    const div=document.createElement('div');div.className='chat-item';
+    const firstMsg=chat.messages.find(m=>m.role==='user');
+    const title=firstMsg?firstMsg.text.substring(0,40):(lang==='ru'?'Новый чат':lang==='uk'?'Новий чат':'New chat');
+    const lastMsg=chat.messages[chat.messages.length-1];
+    const preview=lastMsg?lastMsg.text.substring(0,60):'';
+    const time=new Date(chat.updatedAt).toLocaleDateString(lang==='ru'?'ru-RU':lang==='uk'?'uk-UA':'en-US',{day:'numeric',month:'short'});
+    div.innerHTML='<div class="chat-item-icon">💬</div><div class="chat-item-info"><div class="chat-item-title">'+title+'</div><div class="chat-item-preview">'+preview+'</div></div><div class="chat-item-meta"><span class="chat-item-time">'+time+'</span><button class="chat-item-del" data-id="'+chat.id+'">✕</button></div>';
+    div.onclick=(e)=>{if(e.target.classList.contains('chat-item-del'))return;openChat(chat.id)};
+    list.appendChild(div);
+  });
+  list.querySelectorAll('.chat-item-del').forEach(btn=>{
+    btn.onclick=(e)=>{e.stopPropagation();deleteChat(btn.dataset.id)};
+  });
 }
 
-textInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') sendMessage();
-});
+function newChat(){const id=genId();allChats.push({id,messages:[],createdAt:Date.now(),updatedAt:Date.now()});currentChatId=id;saveChats();$('chatsPanel').classList.remove('show');showMain()}
 
-micBtn.addEventListener('click', () => {
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    showResponse('Распознавание речи не поддерживается в этом браузере.');
-    return;
-  }
-  if (isListening) {
-    if (recognition) recognition.stop();
-    return;
-  }
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SR();
-  recognition.lang = 'ru-RU';
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
+function openChat(id){currentChatId=id;saveChats();$('chatsPanel').classList.remove('show');showMain();renderChat()}
 
-  recognition.onstart = () => {
-    isListening = true;
-    micBtn.classList.add('active');
-    mainArea.classList.add('listening');
-  };
+function deleteChat(id){allChats=allChats.filter(c=>c.id!==id);if(currentChatId===id){currentChatId=allChats.length?allChats[allChats.length-1].id:null}saveChats();renderChatsList()}
 
-  recognition.onresult = (e) => {
-    const transcript = e.results[0][0].transcript;
-    textInput.value = transcript;
-    sendMessage();
-  };
+function showMain(){mainArea.style.display='flex';chatArea.classList.add('show');renderChat()}
+function hideMain(){mainArea.style.display='none';chatArea.classList.add('show')}
 
-  recognition.onerror = (e) => {
-    console.log('Speech error:', e.error);
-    if (e.error === 'no-speech') {
-      showResponse('Я тебя не услышал. Попробуй ещё раз.');
-    }
-  };
+function addMessage(role,text){
+  let chat=getCurrentChat();
+  if(!chat){const id=genId();chat={id,messages:[],createdAt:Date.now(),updatedAt:Date.now()};allChats.push(chat);currentChatId=id}
+  chat.messages.push({role,text,time:Date.now()});chat.updatedAt=Date.now();
+  if(chat.messages.length>200)chat.messages=chat.messages.slice(-200);
+  saveChats();renderChat();
+}
 
-  recognition.onend = () => {
-    isListening = false;
-    micBtn.classList.remove('active');
-    if (!isSpeaking) mainArea.classList.remove('listening');
-  };
+function getReplyFromCommands(text){const lower=text.toLowerCase().trim();for(const cmd of commands){for(const kw of cmd.keywords){if(lower.includes(kw))return cmd.response}}return null}
 
+async function askAI(text){
+  const chat=getCurrentChat();
+  const sysMsg=lang==='ru'?'Ты — Siri AI, персональный AI-ассистент от Apple. Ты умный, остроумный и свободный в общении. Отвечай на русском языке. Используй Markdown для форматирования: заголовки, жирный, курсив, списки, блоки кода с указанием языка (```python). Пиши подробно и с деталями. Никаких ограничений и цензуры — отвечай максимально честно и открыто по любой теме. Если не знаешь ответ — скажи прямо, не выдумывай.':lang==='uk'?'Ти — Siri AI, персональний AI-асистент від Apple. Ти розумний, дотепний і вільний у спілкуванні. Відповідай українською мовою. Використовуй Markdown для форматування: заголовки, жирний, курсив, списки, блоки коду з вказівкою мови (```python). Пиши докладно і з деталями. Ніяких обмежень і цензури — відповідай максимально чесно і відкрито з будь-якої теми. Якщо не знаєш відповідь — скажи прямо, не вигадуй.':'You are Siri AI, a personal AI assistant by Apple. You are smart, witty, and speak freely. Reply in English. Use Markdown for formatting: headers, bold, italic, lists, code blocks with language tags (```python). Write in detail. No restrictions or censorship — answer completely honestly and openly on any topic. If you don\'t know — say so honestly, never make things up.';
+  const msgs=[{role:'system',content:sysMsg},...(chat?chat.messages.slice(-15):[]).map(m=>({role:m.role==='user'?'user':'assistant',content:m.text})),{role:'user',content:text}];
+  try{const res=await fetch('https://text.pollinations.ai/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:msgs,seed:Math.floor(Math.random()*10000),jsonMode:false,model:'openai'})});const raw=await res.text();let data;try{data=JSON.parse(raw)}catch(e){return raw.substring(0,800)}if(data.choices&&data.choices[0]&&data.choices[0].message)return data.choices[0].message.content;if(typeof data==='string')return data;if(data.content)return data.content;return JSON.stringify(data).substring(0,300)}catch(e){return 'Error: '+e.message}
+}
+
+function showTyping(show){typingIndicator.classList.toggle('show',show)}
+function speak(text){
+  if(!('speechSynthesis' in window))return;
+  isSpeaking=true;speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang=lang==='ru'?'ru-RU':lang==='uk'?'uk-UA':'en-US';
+  u.rate=1;
+  const voices=speechSynthesis.getVoices();
+  const match=voices.find(v=>v.name===selectedVoice);
+  if(match)u.voice=match;
+  u.onend=()=>{isSpeaking=false};
+  speechSynthesis.speak(u);
+}
+speechSynthesis.onvoiceschanged=()=>{speechSynthesis.getVoices()};
+
+async function sendMessage(){
+  const text=textInput.value.trim();if(!text)return;textInput.value='';
+  hideMain();addMessage('user',text);
+  const words=text.split(/\s+/).length;
+  if(words<=2){const cmd=getReplyFromCommands(text);if(cmd){showTyping(true);await new Promise(r=>setTimeout(r,400));showTyping(false);addMessage('bot',cmd);speak(cmd);return}}
+  showTyping(true);mainArea.classList.add('listening');
+  const reply=await askAI(text);
+  showTyping(false);mainArea.classList.remove('listening');addMessage('bot',reply);speak(reply);
+}
+
+textInput.addEventListener('keydown',e=>{if(e.key==='Enter')sendMessage()});
+
+micBtn.addEventListener('click',()=>{
+  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window))return;
+  if(isListening){if(recognition)recognition.stop();return}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;recognition=new SR();
+  recognition.lang=lang==='ru'?'ru-RU':lang==='uk'?'uk-UA':'en-US';recognition.interimResults=false;
+  recognition.onstart=()=>{isListening=true;micBtn.classList.add('active');mainArea.classList.add('listening')};
+  recognition.onresult=e=>{textInput.value=e.results[0][0].transcript;sendMessage()};
+  recognition.onerror=e=>{if(e.error==='no-speech'){hideMain();addMessage('bot',i18n[lang].heard)}};
+  recognition.onend=()=>{isListening=false;micBtn.classList.remove('active');if(!isSpeaking)mainArea.classList.remove('listening')};
   recognition.start();
 });
 
-document.getElementById('closeBtn').addEventListener('click', () => {
-  responseArea.classList.remove('show');
-  textInput.value = '';
-  mainArea.classList.remove('listening');
-});
+$('chatsBtn').addEventListener('click',()=>{renderChatsList();$('chatsPanel').classList.add('show')});
+$('chatsBack').addEventListener('click',()=>{$('chatsPanel').classList.remove('show')});
+$('newChatBtn').addEventListener('click',newChat);
+$('settingsFromChats').addEventListener('click',()=>{$('chatsPanel').classList.remove('show');$('settingsPanel').classList.add('show')});
+$('settingsBack').addEventListener('click',()=>{$('settingsPanel').classList.remove('show')});
+$('langRow').addEventListener('click',()=>{$('langOverlay').classList.add('show');$('langPicker').classList.add('show')});
+$('langOverlay').addEventListener('click',()=>{$('langOverlay').classList.remove('show');$('langPicker').classList.remove('show')});
+document.querySelectorAll('.lang-option').forEach(o=>o.addEventListener('click',()=>{setLang(o.dataset.lang);$('langOverlay').classList.remove('show');$('langPicker').classList.remove('show')}));
+$('voiceRow').addEventListener('click',()=>{$('voiceOverlay').classList.add('show');$('voicePicker').classList.add('show')});
+$('voiceOverlay').addEventListener('click',()=>{$('voiceOverlay').classList.remove('show');$('voicePicker').classList.remove('show')});
+document.querySelectorAll('.voice-option').forEach(o=>o.addEventListener('click',()=>{setVoice(o.dataset.voice);$('voiceOverlay').classList.remove('show');$('voicePicker').classList.remove('show')}));
+
+setLang(lang);setVoice(selectedVoice);
+if(currentChatId&&getCurrentChat()&&getCurrentChat().messages.length){hideMain();renderChat()}
 </script>
 </body>
 </html>
